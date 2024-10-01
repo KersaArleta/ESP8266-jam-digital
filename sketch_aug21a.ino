@@ -11,17 +11,17 @@
 #define OLED_RESET    -1
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
-// Wipi
-const char* ssid     = "ARUN-05";
-const char* password = "Arun2015";
+// Wifi *Important
+const char* ssid     = "Name wifi";
+const char* password = "Password";
 
 // Define NTP Client to get time
 WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP, "pool.ntp.org", 25200, 60000); 
 
-bool showColon = true; // Untuk mengatur kedipan titik dua
-String message = "Semangat terus yaa...";  // Pesan yang ingin ditampilkan
-int textX = SCREEN_WIDTH;  // Mulai dari kanan layar
+bool showColon = true; 
+String message = "Semangat terus yaa...";  // Massage
+int textX = SCREEN_WIDTH;  
 int textY = 50;
 unsigned long previousMillis = 0;
 unsigned long colonPreviousMillis = 0;
@@ -30,7 +30,6 @@ const long interval = 1000;  // Interval kedipan titik dua
 const long textInterval = 50;  // Interval kecepatan teks berjalan
 
 void setup(){
-  // Initialize Serial Monitor
   Serial.begin(115200);
 
   // Initialize OLED display
@@ -51,24 +50,21 @@ void setup(){
   timeClient.begin();
   timeClient.update();
 
-  setTime(timeClient.getEpochTime()); // Set waktu awal dari NTP
+  setTime(timeClient.getEpochTime()); // Set from NTP
 
   display.clearDisplay();
 
-  // Menampilkan Jam dan Tanggal pertama kali
   updateTimeAndDate();
 }
 
 void updateTimeAndDate() {
-  // Bersihkan hanya area jam dan tanggal
   display.fillRect(0, 0, SCREEN_WIDTH, 40, SSD1306_BLACK);
 
-  // Menampilkan Jam
+  // Clock setting
   display.setTextSize(4);
   display.setTextColor(SSD1306_WHITE);
   display.setCursor(5, 0);
 
-  // Menambahkan nol di depan jam jika kurang dari 10
   if (hour() < 10) {
     display.print("0");
   }
@@ -85,11 +81,10 @@ void updateTimeAndDate() {
   }
   display.print(minute());
 
-  // Menampilkan Tanggal di bawah Jam
+  // Showing date
   display.setTextSize(1);
   display.setCursor(33, 32);
 
-  // Format tanggal: 18 Agustus 2024
   String months[] = {"Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"};
   String formattedDate = String(day()) + " " + months[month() - 1] + " " + String(year());
   display.print(formattedDate);
@@ -97,26 +92,22 @@ void updateTimeAndDate() {
 
 void drawScrollingText(String text, int &x, int y) {
   int textLength = text.length();
-  int textWidth = textLength * 6; // Setiap karakter dengan font ukuran 1 membutuhkan 6 pixel
+  int textWidth = textLength * 6; 
 
-  // Bersihkan area teks berjalan sebelum menggambar ulang
   display.fillRect(0, y -5, SCREEN_WIDTH, 20, SSD1306_BLACK);
 
-  // Loop melalui setiap karakter dalam string
   for (int i = 0; i < textLength; i++) {
-    int charX = x + i * 6; // Menghitung posisi X untuk setiap karakter
+    int charX = x + i * 6; 
 
-    // Pastikan karakter tidak keluar dari layar
     if (charX >= 0 && (charX + 6) <= SCREEN_WIDTH) {
       display.setCursor(charX, y);
       display.print(text[i]);
     }
   }
 
-  // Geser teks ke kiri
   x--;
 
-  // Reset posisi jika seluruh teks sudah lewat dari layar
+  // Reset 
   if (x < -textWidth) {
     x = SCREEN_WIDTH;
   }
@@ -125,21 +116,19 @@ void drawScrollingText(String text, int &x, int y) {
 void loop() {
   unsigned long currentMillis = millis();
   
-  // Update NTP client untuk mendapatkan waktu terbaru
+  // Update NTP client 
   timeClient.update();
   setTime(timeClient.getEpochTime());
 
-  // Perbarui waktu dan tanggal setiap detik
   if (currentMillis - colonPreviousMillis >= interval) {
     colonPreviousMillis = currentMillis;
     showColon = !showColon;
     updateTimeAndDate();
   }
 
-  // Menampilkan teks berjalan
   if (currentMillis - textPreviousMillis >= textInterval) {
     textPreviousMillis = currentMillis;
-    drawScrollingText(message, textX, textY);  // Menggambar teks berjalan
+    drawScrollingText(message, textX, textY);  
   }
 
   display.display();
