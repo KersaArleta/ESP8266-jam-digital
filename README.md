@@ -5,6 +5,6 @@ For this you need:
 - ESP 8266
 - Pin Header
 
-<br> Solder pin header to display oled
+<br> Solder pin header to display oled</br>
 Connect oled to esp 8266 with jumper cable
 
